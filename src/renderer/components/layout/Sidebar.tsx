@@ -27,7 +27,7 @@ export function Sidebar() {
   return (
     <>
       <div className="w-64 h-screen flex flex-col bg-surface-1 border-r border-border">
-        <div className="p-4 flex items-center justify-between">
+        <div className="pt-9 pb-2 px-4 flex items-center justify-between" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
           <h1 className="text-sm font-bold text-text-primary tracking-wide uppercase">Trakko</h1>
         </div>
 

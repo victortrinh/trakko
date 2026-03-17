@@ -11,7 +11,7 @@ export function TopBar({ project }: TopBarProps) {
   const doneTasks = tasks.filter((t) => t.status === 'done').length;
 
   return (
-    <div className="h-14 flex items-center justify-between px-6 border-b border-border bg-surface-0">
+    <div className="h-14 flex items-center justify-between px-6 border-b border-border bg-surface-0" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
       <div className="flex items-center gap-3">
         <h2 className="text-base font-semibold text-text-primary">{project.name}</h2>
         {totalTasks > 0 && (
