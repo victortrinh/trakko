@@ -1,7 +1,7 @@
 ---
 title: "feat: Trakko — Cross-Platform Kanban Board Desktop App"
 type: feat
-status: active
+status: completed
 date: 2026-03-17
 origin: docs/brainstorms/2026-03-17-trakko-brainstorm.md
 ---
@@ -419,33 +419,33 @@ trakko/
 ## Acceptance Criteria
 
 ### Functional Requirements
-- [ ] Can create, edit, and delete projects
-- [ ] Can create, edit, and delete tasks within projects
-- [ ] Tasks display in Kanban columns (Todo / In Progress / Done)
-- [ ] Can drag tasks between columns — status updates
-- [ ] Can drag tasks within a column — order updates
-- [ ] Projects optionally store a git repo path
-- [ ] Data persists across app restarts (SQLite)
-- [ ] App remembers last-viewed project
-- [ ] Sidebar shows all projects with active indicator
-- [ ] Empty states for no-projects and no-tasks scenarios
-- [ ] Delete confirmations for both tasks and projects
+- [x] Can create, edit, and delete projects
+- [x] Can create, edit, and delete tasks within projects
+- [x] Tasks display in Kanban columns (Todo / In Progress / Done)
+- [x] Can drag tasks between columns — status updates
+- [x] Can drag tasks within a column — order updates
+- [x] Projects optionally store a git repo path
+- [x] Data persists across app restarts (SQLite)
+- [x] App remembers last-viewed project
+- [x] Sidebar shows all projects with active indicator
+- [x] Empty states for no-projects and no-tasks scenarios
+- [x] Delete confirmations for both tasks and projects
 
 ### Non-Functional Requirements
-- [ ] App launches in under 2 seconds
-- [ ] Drag-and-drop feels instant (optimistic updates)
-- [ ] Dark mode by default, Linear-inspired aesthetic
-- [ ] Minimum window size 900×600
-- [ ] Window position/size restored on relaunch
-- [ ] Works on macOS and Windows
-- [ ] Clean TypeScript with strict mode, no `any` types
+- [x] App launches in under 2 seconds
+- [x] Drag-and-drop feels instant (optimistic updates)
+- [x] Dark mode by default, Linear-inspired aesthetic
+- [x] Minimum window size 900×600
+- [x] Window position/size restored on relaunch
+- [x] Works on macOS and Windows
+- [x] Clean TypeScript with strict mode, no `any` types
 
 ### Quality Gates
-- [ ] `npm start` launches successfully
-- [ ] All IPC channels type-safe end-to-end
-- [ ] No console errors during normal operation
-- [ ] SQLite WAL mode enabled
-- [ ] Native modules properly handled (asar unpack)
+- [x] `npm start` launches successfully
+- [x] All IPC channels type-safe end-to-end
+- [x] No console errors during normal operation
+- [x] SQLite WAL mode enabled
+- [x] Native modules properly handled (asar unpack)
 
 ## Risk Analysis
 
