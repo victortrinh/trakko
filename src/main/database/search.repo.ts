@@ -9,7 +9,7 @@ export function searchTasks(query: string): TaskSearchResult[] {
       `SELECT t.*, p.name as project_name
        FROM tasks t
        JOIN projects p ON t.project_id = p.id
-       WHERE t.title LIKE ? OR t.description LIKE ?
+       WHERE t.archived_at IS NULL AND (t.title LIKE ? OR t.description LIKE ?)
        ORDER BY t.updated_at DESC
        LIMIT 20`
     )
@@ -22,6 +22,8 @@ export function searchTasks(query: string): TaskSearchResult[] {
     description: (row.description as string) || '',
     status: row.status as TaskSearchResult['status'],
     sortOrder: row.sort_order as number,
+    priority: (row.priority as TaskSearchResult['priority']) || null,
+    archivedAt: (row.archived_at as string) || null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
     projectName: row.project_name as string,

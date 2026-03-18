@@ -1,7 +1,7 @@
 ---
 title: "feat: AI Task Delegation via Claude API"
 type: feat
-status: active
+status: completed
 date: 2026-03-17
 origin: docs/brainstorms/2026-03-17-trakko-brainstorm.md
 ---

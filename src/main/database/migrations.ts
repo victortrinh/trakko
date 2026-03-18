@@ -1,6 +1,6 @@
 import { getDb } from './connection';
 
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 3;
 
 const migrations: Record<number, string> = {
   1: `
@@ -32,6 +32,31 @@ const migrations: Record<number, string> = {
     );
 
     CREATE INDEX IF NOT EXISTS idx_tasks_project_status ON tasks(project_id, status);
+  `,
+  2: `
+    ALTER TABLE tasks ADD COLUMN archived_at TEXT DEFAULT NULL;
+    CREATE INDEX idx_tasks_archived ON tasks(project_id, archived_at);
+  `,
+  3: `
+    ALTER TABLE tasks ADD COLUMN priority TEXT DEFAULT NULL
+      CHECK(priority IN ('low','medium','high','urgent'));
+
+    CREATE TABLE labels (
+      id TEXT PRIMARY KEY,
+      project_id TEXT,
+      name TEXT NOT NULL,
+      color TEXT NOT NULL DEFAULT '#6366f1',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE task_labels (
+      task_id TEXT NOT NULL,
+      label_id TEXT NOT NULL,
+      PRIMARY KEY (task_id, label_id),
+      FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+      FOREIGN KEY (label_id) REFERENCES labels(id) ON DELETE CASCADE
+    );
   `,
 };
 

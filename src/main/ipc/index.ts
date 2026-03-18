@@ -1,10 +1,11 @@
-import { ipcMain, dialog } from 'electron';
+import { ipcMain, dialog, shell } from 'electron';
 import { getDb } from '../database/connection';
 import { registerProjectHandlers } from './projects.ipc';
 import { registerTaskHandlers } from './tasks.ipc';
 import { registerSearchHandlers } from './search.ipc';
 import { registerGitHandlers } from './git.ipc';
 import { registerAiHandlers } from './ai.ipc';
+import { registerLabelHandlers } from './labels.ipc';
 
 function registerAppStateHandlers(): void {
   ipcMain.handle('app-state:get', (_event, key: string) => {
@@ -31,12 +32,20 @@ function registerDialogHandlers(): void {
   });
 }
 
+function registerShellHandlers(): void {
+  ipcMain.handle('shell:open-external', (_event, url: string) => {
+    return shell.openExternal(url);
+  });
+}
+
 export function registerAllHandlers(): void {
   registerProjectHandlers();
   registerTaskHandlers();
   registerSearchHandlers();
   registerGitHandlers();
   registerAiHandlers();
+  registerLabelHandlers();
   registerDialogHandlers();
+  registerShellHandlers();
   registerAppStateHandlers();
 }

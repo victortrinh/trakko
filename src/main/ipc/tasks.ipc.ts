@@ -22,4 +22,20 @@ export function registerTaskHandlers(): void {
   ipcMain.handle('tasks:reorder', (_event, input: ReorderTaskInput) => {
     tasksRepo.reorderTask(input);
   });
+
+  ipcMain.handle('tasks:archive', (_event, id: string) => {
+    tasksRepo.archiveTask(id);
+  });
+
+  ipcMain.handle('tasks:restore', (_event, id: string) => {
+    tasksRepo.restoreTask(id);
+  });
+
+  ipcMain.handle('tasks:list-archived', (_event, projectId: string) => {
+    return tasksRepo.listArchivedTasks(projectId);
+  });
+
+  ipcMain.handle('tasks:bulk-archive-done', (_event, projectId: string) => {
+    tasksRepo.bulkArchiveDone(projectId);
+  });
 }
