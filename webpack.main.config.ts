@@ -12,4 +12,7 @@ export const mainConfig: Configuration = {
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
   },
+  externals: {
+    'node-pty': 'commonjs node-pty',
+  },
 };

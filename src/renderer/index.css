@@ -15,6 +15,10 @@
   --color-danger: #ef4444;
   --color-danger-hover: #f87171;
   --color-success: #22c55e;
+  --color-priority-urgent: #ef4444;
+  --color-priority-high: #f97316;
+  --color-priority-medium: #eab308;
+  --color-priority-low: #3b82f6;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 
@@ -70,4 +74,116 @@ button, a, input, textarea {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Markdown body styles */
+.markdown-body {
+  line-height: 1.6;
+}
+
+.markdown-body h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1rem 0 0.5rem;
+}
+
+.markdown-body h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0.875rem 0 0.375rem;
+}
+
+.markdown-body h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.markdown-body p {
+  margin: 0.375rem 0;
+}
+
+.markdown-body ul, .markdown-body ol {
+  padding-left: 1.5rem;
+  margin: 0.375rem 0;
+}
+
+.markdown-body li {
+  margin: 0.125rem 0;
+}
+
+.markdown-body pre {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+
+.markdown-body code {
+  background: var(--color-surface-2);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.85em;
+}
+
+.markdown-body pre code {
+  background: none;
+  padding: 0;
+}
+
+.markdown-body blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: var(--color-text-secondary);
+}
+
+.markdown-body a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.markdown-body a:hover {
+  color: var(--color-accent-hover);
+}
+
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0.75rem 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.markdown-body th, .markdown-body td {
+  border: 1px solid var(--color-border);
+  padding: 0.375rem 0.625rem;
+  text-align: left;
+}
+
+.markdown-body th {
+  background: var(--color-surface-2);
+  font-weight: 600;
+}
+
+/* Compact markdown (for TaskCard) */
+.markdown-compact p,
+.markdown-compact ul,
+.markdown-compact ol,
+.markdown-compact blockquote,
+.markdown-compact pre {
+  margin: 0;
+}
+
+.markdown-compact h1,
+.markdown-compact h2,
+.markdown-compact h3 {
+  font-size: inherit;
+  margin: 0;
 }

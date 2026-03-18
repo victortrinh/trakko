@@ -14,6 +14,10 @@ const api: ElectronAPI = {
     update: (input) => ipcRenderer.invoke('tasks:update', input),
     delete: (id) => ipcRenderer.invoke('tasks:delete', id),
     reorder: (input) => ipcRenderer.invoke('tasks:reorder', input),
+    archive: (id) => ipcRenderer.invoke('tasks:archive', id),
+    restore: (id) => ipcRenderer.invoke('tasks:restore', id),
+    listArchived: (projectId) => ipcRenderer.invoke('tasks:list-archived', projectId),
+    bulkArchiveDone: (projectId) => ipcRenderer.invoke('tasks:bulk-archive-done', projectId),
   },
   search: {
     tasks: (query) => ipcRenderer.invoke('search:tasks', query),
@@ -24,29 +28,34 @@ const api: ElectronAPI = {
     isValidRepo: (repoPath) => ipcRenderer.invoke('git:is-valid-repo', repoPath),
   },
   ai: {
-    setApiKey: (key) => ipcRenderer.invoke('ai:set-api-key', key),
-    hasApiKey: () => ipcRenderer.invoke('ai:has-api-key'),
-    removeApiKey: () => ipcRenderer.invoke('ai:remove-api-key'),
-    delegateTask: (input) => ipcRenderer.invoke('ai:delegate-task', input),
-    cancelJob: (jobId) => ipcRenderer.invoke('ai:cancel-job', jobId),
-    onChunk: (callback) => {
-      const handler = (_e: Electron.IpcRendererEvent, jobId: string, chunk: string) => callback(jobId, chunk);
-      ipcRenderer.on('ai:chunk', handler);
-      return () => { ipcRenderer.removeListener('ai:chunk', handler); };
+    startSession: (input) => ipcRenderer.invoke('ai:start-session', input),
+    sendInput: (sessionId, input) => ipcRenderer.invoke('ai:send-input', sessionId, input),
+    resize: (sessionId, cols, rows) => ipcRenderer.invoke('ai:resize', sessionId, cols, rows),
+    killSession: (sessionId) => ipcRenderer.invoke('ai:kill-session', sessionId),
+    onOutput: (cb) => {
+      const handler = (_e: Electron.IpcRendererEvent, sessionId: string, data: string) => cb(sessionId, data);
+      ipcRenderer.on('ai:output', handler);
+      return () => { ipcRenderer.removeListener('ai:output', handler); };
     },
-    onDone: (callback) => {
-      const handler = (_e: Electron.IpcRendererEvent, jobId: string) => callback(jobId);
-      ipcRenderer.on('ai:done', handler);
-      return () => { ipcRenderer.removeListener('ai:done', handler); };
+    onExit: (cb) => {
+      const handler = (_e: Electron.IpcRendererEvent, sessionId: string, exitCode: number) => cb(sessionId, exitCode);
+      ipcRenderer.on('ai:exit', handler);
+      return () => { ipcRenderer.removeListener('ai:exit', handler); };
     },
-    onError: (callback) => {
-      const handler = (_e: Electron.IpcRendererEvent, jobId: string, error: string) => callback(jobId, error);
-      ipcRenderer.on('ai:error', handler);
-      return () => { ipcRenderer.removeListener('ai:error', handler); };
-    },
+  },
+  labels: {
+    list: (projectId) => ipcRenderer.invoke('labels:list', projectId),
+    create: (projectId, name, color) => ipcRenderer.invoke('labels:create', projectId, name, color),
+    delete: (id) => ipcRenderer.invoke('labels:delete', id),
+    addToTask: (taskId, labelId) => ipcRenderer.invoke('labels:add-to-task', taskId, labelId),
+    removeFromTask: (taskId, labelId) => ipcRenderer.invoke('labels:remove-from-task', taskId, labelId),
+    getForTasks: (taskIds) => ipcRenderer.invoke('labels:get-for-tasks', taskIds),
   },
   dialog: {
     selectFolder: () => ipcRenderer.invoke('dialog:select-folder'),
+  },
+  shell: {
+    openExternal: (url) => ipcRenderer.invoke('shell:open-external', url),
   },
   appState: {
     get: (key) => ipcRenderer.invoke('app-state:get', key),

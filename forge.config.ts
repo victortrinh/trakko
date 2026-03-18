@@ -21,7 +21,7 @@ const config: ForgeConfig = {
     icon: './assets/icon',
   },
   rebuildConfig: {
-    onlyModules: ['better-sqlite3'],
+    onlyModules: ['better-sqlite3', 'node-pty'],
     force: true,
   },
   makers: [

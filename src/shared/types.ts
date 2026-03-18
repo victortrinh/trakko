@@ -1,4 +1,5 @@
 export type TaskStatus = 'todo' | 'in_progress' | 'done';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 export interface Project {
   id: string;
@@ -10,6 +11,14 @@ export interface Project {
   sortOrder: number;
 }
 
+export interface Label {
+  id: string;
+  projectId: string;
+  name: string;
+  color: string;
+  createdAt: string;
+}
+
 export interface Task {
   id: string;
   projectId: string;
@@ -17,8 +26,11 @@ export interface Task {
   description: string;
   status: TaskStatus;
   sortOrder: number;
+  priority: TaskPriority | null;
+  archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  labels?: Label[];
 }
 
 export interface CreateProjectInput {
@@ -39,6 +51,7 @@ export interface CreateTaskInput {
   title: string;
   description?: string;
   status?: TaskStatus;
+  priority?: TaskPriority | null;
 }
 
 export interface UpdateTaskInput {
@@ -47,6 +60,7 @@ export interface UpdateTaskInput {
   description?: string;
   status?: TaskStatus;
   sortOrder?: number;
+  priority?: TaskPriority | null;
 }
 
 export interface ReorderTaskInput {
@@ -78,13 +92,12 @@ export interface GitCommit {
 }
 
 // AI types
-export interface AiDelegateInput {
-  taskId: string;
+export interface AiSessionInput {
   taskTitle: string;
   taskDescription: string;
   projectName: string;
   gitRepoPath?: string;
-  userPrompt?: string;
+  initialPrompt?: string;
 }
 
 export interface ElectronAPI {
@@ -100,6 +113,10 @@ export interface ElectronAPI {
     update: (input: UpdateTaskInput) => Promise<Task>;
     delete: (id: string) => Promise<void>;
     reorder: (input: ReorderTaskInput) => Promise<void>;
+    archive: (id: string) => Promise<void>;
+    restore: (id: string) => Promise<void>;
+    listArchived: (projectId: string) => Promise<Task[]>;
+    bulkArchiveDone: (projectId: string) => Promise<void>;
   };
   search: {
     tasks: (query: string) => Promise<TaskSearchResult[]>;
@@ -110,17 +127,26 @@ export interface ElectronAPI {
     isValidRepo: (repoPath: string) => Promise<boolean>;
   };
   ai: {
-    setApiKey: (key: string) => Promise<void>;
-    hasApiKey: () => Promise<boolean>;
-    removeApiKey: () => Promise<void>;
-    delegateTask: (input: AiDelegateInput) => Promise<string>;
-    cancelJob: (jobId: string) => Promise<void>;
-    onChunk: (callback: (jobId: string, chunk: string) => void) => () => void;
-    onDone: (callback: (jobId: string) => void) => () => void;
-    onError: (callback: (jobId: string, error: string) => void) => () => void;
+    startSession: (input: AiSessionInput) => Promise<string>;
+    sendInput: (sessionId: string, input: string) => Promise<void>;
+    resize: (sessionId: string, cols: number, rows: number) => Promise<void>;
+    killSession: (sessionId: string) => Promise<void>;
+    onOutput: (cb: (sessionId: string, data: string) => void) => () => void;
+    onExit: (cb: (sessionId: string, exitCode: number) => void) => () => void;
+  };
+  labels: {
+    list: (projectId: string) => Promise<Label[]>;
+    create: (projectId: string, name: string, color: string) => Promise<Label>;
+    delete: (id: string) => Promise<void>;
+    addToTask: (taskId: string, labelId: string) => Promise<void>;
+    removeFromTask: (taskId: string, labelId: string) => Promise<void>;
+    getForTasks: (taskIds: string[]) => Promise<Record<string, Label[]>>;
   };
   dialog: {
     selectFolder: () => Promise<string | null>;
+  };
+  shell: {
+    openExternal: (url: string) => Promise<void>;
   };
   appState: {
     get: (key: string) => Promise<string | null>;
