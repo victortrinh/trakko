@@ -6,6 +6,7 @@
   "main": ".webpack/main",
   "private": true,
   "scripts": {
+    "prestart": "node -e \"const fs=require('fs'),p=require('path'),d=p.join(require.resolve('electron'),'..','dist','Electron.app','Contents','Info.plist');if(fs.existsSync(d)){let s=fs.readFileSync(d,'utf8');if(s.includes('>Electron<')){s=s.replace(/>Electron</g,'>Trakko<');fs.writeFileSync(d,s);console.log('Patched Electron.app name to Trakko')}}\"",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
