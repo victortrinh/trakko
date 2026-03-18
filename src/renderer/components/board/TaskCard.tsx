@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/react/sortable';
 import type { Task, TaskStatus, TaskPriority } from '../../../shared/types';
 import { TaskDetail } from '../tasks/TaskDetail';
 import { MarkdownRenderer } from '../shared/MarkdownRenderer';
+import { DueDateBadge } from '../shared/DueDateBadge';
 
 interface TaskCardProps {
   task: Task;
@@ -59,6 +60,11 @@ export function TaskCard({ task, index, column }: TaskCardProps) {
         {task.description && (
           <div className="text-xs text-text-tertiary mt-1 line-clamp-2">
             <MarkdownRenderer content={task.description} compact />
+          </div>
+        )}
+        {task.dueDate && (
+          <div className="mt-1.5">
+            <DueDateBadge dueDate={task.dueDate} />
           </div>
         )}
         {task.labels && task.labels.length > 0 && (

@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTaskStore } from '../../stores/taskStore';
 import { useLabelStore } from '../../stores/labelStore';
 import { AiPanel } from '../ai/AiPanel';
 import { MarkdownRenderer } from '../shared/MarkdownRenderer';
+import { CalendarPicker } from '../shared/CalendarPicker';
+import { formatDueDate, getDueDateStatus, getDueDateColor } from '../../utils/dateUtils';
 import type { Task, TaskStatus, TaskPriority, Label } from '../../../shared/types';
 
 interface TaskDetailProps {
@@ -31,6 +33,8 @@ export function TaskDetail({ task, onClose }: TaskDetailProps) {
   const [description, setDescription] = useState(task.description);
   const [status, setStatus] = useState<TaskStatus>(task.status);
   const [priority, setPriority] = useState<TaskPriority | null>(task.priority);
+  const [dueDate, setDueDate] = useState<string | null>(task.dueDate);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [showAi, setShowAi] = useState(false);
   const [previewMode, setPreviewMode] = useState(!!task.description);
   const [taskLabels, setTaskLabels] = useState<Label[]>(task.labels || []);
@@ -42,6 +46,7 @@ export function TaskDetail({ task, onClose }: TaskDetailProps) {
   const deleteTask = useTaskStore((s) => s.deleteTask);
   const archiveTask = useTaskStore((s) => s.archiveTask);
 
+  const dueDateTriggerRef = useRef<HTMLButtonElement>(null);
   const labels = useLabelStore((s) => s.labels);
   const fetchLabels = useLabelStore((s) => s.fetchLabels);
   const createLabel = useLabelStore((s) => s.createLabel);
@@ -59,6 +64,7 @@ export function TaskDetail({ task, onClose }: TaskDetailProps) {
       description: description.trim(),
       status,
       priority,
+      dueDate,
     });
     onClose();
   };
@@ -215,6 +221,44 @@ export function TaskDetail({ task, onClose }: TaskDetailProps) {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs text-text-secondary mb-1.5">Due Date</label>
+            <div className="flex items-center gap-2">
+              <button
+                ref={dueDateTriggerRef}
+                onClick={() => setShowCalendar(!showCalendar)}
+                className={`px-3 py-1.5 text-xs rounded-lg transition-colors flex items-center gap-1.5 ${
+                  dueDate
+                    ? `bg-surface-2 ${getDueDateColor(getDueDateStatus(dueDate))}`
+                    : 'bg-surface-2 text-text-secondary hover:text-text-primary hover:bg-surface-3'
+                }`}
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
+                  <path d="M2 6.5h12" stroke="currentColor" strokeWidth="1.3" />
+                  <path d="M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                </svg>
+                {dueDate ? formatDueDate(dueDate) : 'Set due date'}
+              </button>
+              {dueDate && (
+                <button
+                  onClick={() => setDueDate(null)}
+                  className="text-text-tertiary hover:text-text-primary text-xs transition-colors"
+                >
+                  x
+                </button>
+              )}
+            </div>
+            {showCalendar && (
+              <CalendarPicker
+                value={dueDate}
+                onChange={(d) => setDueDate(d)}
+                onClose={() => setShowCalendar(false)}
+                triggerRef={dueDateTriggerRef}
+              />
+            )}
           </div>
 
           <div>

@@ -64,9 +64,9 @@ export function KanbanColumn({ status, label, tasks }: KanbanColumnProps) {
             No tasks
           </div>
         )}
-      </div>
 
-      {status === 'todo' && <InlineTaskCreate />}
+        {status === 'todo' && <InlineTaskCreate />}
+      </div>
     </div>
   );
 }
