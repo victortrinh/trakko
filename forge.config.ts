@@ -7,9 +7,24 @@ import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-nati
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import * as path from 'path';
+import * as fs from 'fs';
 
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
+
+function copyDirSync(src: string, dest: string) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -35,6 +50,21 @@ const config: ForgeConfig = {
   rebuildConfig: {
     onlyModules: ['better-sqlite3', 'node-pty'],
     force: true,
+  },
+  hooks: {
+    postPackage: async (_config, result) => {
+      // Copy node-pty into the packaged app's node_modules so the webpack
+      // external `require('node-pty')` can resolve at runtime.
+      const outputPath = result.outputPaths[0];
+      const resourcesDir =
+        process.platform === 'darwin'
+          ? path.join(outputPath, 'Trakko.app', 'Contents', 'Resources')
+          : path.join(outputPath, 'resources');
+      const targetNodeModules = path.join(resourcesDir, 'node_modules', 'node-pty');
+      const sourceNodePty = path.join(__dirname, 'node_modules', 'node-pty');
+      copyDirSync(sourceNodePty, targetNodeModules);
+      console.log(`Copied node-pty to ${targetNodeModules}`);
+    },
   },
   makers: [
     new MakerSquirrel({
@@ -75,7 +105,7 @@ const config: ForgeConfig = {
       [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-      [FuseV1Options.OnlyLoadAppFromAsar]: true,
+      [FuseV1Options.OnlyLoadAppFromAsar]: false,
     }),
   ],
 };
