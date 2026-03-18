@@ -1,5 +1,6 @@
 import type { Project } from '../../../shared/types';
 import { useTaskStore } from '../../stores/taskStore';
+import { GitStatusBadge } from '../git/GitStatusBadge';
 
 interface TopBarProps {
   project: Project;
@@ -20,11 +21,9 @@ export function TopBar({ project }: TopBarProps) {
           </span>
         )}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
         {project.gitRepoPath && (
-          <span className="text-xs text-text-tertiary bg-surface-2 px-2 py-1 rounded">
-            {project.gitRepoPath.split('/').pop()}
-          </span>
+          <GitStatusBadge repoPath={project.gitRepoPath} />
         )}
       </div>
     </div>

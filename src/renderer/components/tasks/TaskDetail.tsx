@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTaskStore } from '../../stores/taskStore';
+import { AiPanel } from '../ai/AiPanel';
 import type { Task, TaskStatus } from '../../../shared/types';
 
 interface TaskDetailProps {
@@ -17,6 +18,7 @@ export function TaskDetail({ task, onClose }: TaskDetailProps) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const [status, setStatus] = useState<TaskStatus>(task.status);
+  const [showAi, setShowAi] = useState(false);
   const updateTask = useTaskStore((s) => s.updateTask);
   const deleteTask = useTaskStore((s) => s.deleteTask);
 
@@ -106,12 +108,20 @@ export function TaskDetail({ task, onClose }: TaskDetailProps) {
           </div>
 
           <div className="flex justify-between mt-2">
-            <button
-              onClick={handleDelete}
-              className="px-3 py-2 text-sm text-danger hover:bg-surface-2 rounded-lg transition-colors"
-            >
-              Delete
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDelete}
+                className="px-3 py-2 text-sm text-danger hover:bg-surface-2 rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setShowAi(true)}
+                className="px-3 py-2 text-sm text-accent hover:bg-surface-2 rounded-lg transition-colors"
+              >
+                Delegate to AI
+              </button>
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={onClose}
@@ -129,6 +139,10 @@ export function TaskDetail({ task, onClose }: TaskDetailProps) {
           </div>
         </div>
       </div>
+
+      {showAi && (
+        <AiPanel task={task} onClose={() => setShowAi(false)} />
+      )}
     </div>
   );
 }

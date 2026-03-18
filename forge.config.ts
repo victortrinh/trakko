@@ -18,6 +18,7 @@ const config: ForgeConfig = {
     },
     name: 'Trakko',
     executableName: 'trakko',
+    icon: './assets/icon',
   },
   rebuildConfig: {
     onlyModules: ['better-sqlite3'],

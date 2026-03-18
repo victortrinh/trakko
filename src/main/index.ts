@@ -1,4 +1,5 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, nativeImage } from 'electron';
+import path from 'path';
 import { runMigrations } from './database/migrations';
 import { registerAllHandlers } from './ipc';
 import { getDb } from './database/connection';
@@ -6,6 +7,9 @@ import { closeDb } from './database/connection';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+
+// Set the app name for macOS dock
+app.setName('Trakko');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -41,6 +45,13 @@ function saveWindowBounds(bounds: Electron.Rectangle): void {
 const createWindow = (): void => {
   const savedBounds = loadWindowBounds();
 
+  // Load app icon for dev mode (packaged app uses forge config)
+  const iconPath = path.join(__dirname, '../../assets/icon_1024.png');
+  const icon = nativeImage.createFromPath(iconPath);
+  if (process.platform === 'darwin' && !icon.isEmpty()) {
+    app.dock?.setIcon(icon);
+  }
+
   mainWindow = new BrowserWindow({
     width: savedBounds.width || 1200,
     height: savedBounds.height || 800,
@@ -49,6 +60,7 @@ const createWindow = (): void => {
     minWidth: 900,
     minHeight: 600,
     title: 'Trakko',
+    icon,
     backgroundColor: '#0a0a0f',
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 16, y: 16 },
