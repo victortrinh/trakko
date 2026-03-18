@@ -17,7 +17,7 @@ const config: ForgeConfig = {
       unpack: '**/*.node',
     },
     name: 'Trakko',
-    executableName: 'trakko',
+    executableName: 'Trakko',
     icon: './assets/icon',
   },
   rebuildConfig: {
