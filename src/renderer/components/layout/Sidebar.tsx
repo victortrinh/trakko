@@ -27,7 +27,8 @@ export function Sidebar() {
   return (
     <>
       <div className="w-64 h-screen flex flex-col bg-surface-1 border-r border-border">
-        <div className="pt-9 pb-2 px-4 flex items-center justify-between" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+        <div className="pt-9 pb-2 px-4 flex items-center gap-2" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+          <TrakkoLogo />
           <h1 className="text-sm font-bold text-text-primary tracking-wide uppercase">Trakko</h1>
         </div>
 
@@ -96,5 +97,23 @@ export function Sidebar() {
         />
       )}
     </>
+  );
+}
+
+function TrakkoLogo() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Three kanban columns */}
+      <rect x="2" y="3" width="5" height="18" rx="1.5" stroke="#6366f1" strokeWidth="1.5" fill="none" />
+      <rect x="9.5" y="3" width="5" height="12" rx="1.5" stroke="#6366f1" strokeWidth="1.5" fill="none" />
+      <rect x="17" y="3" width="5" height="15" rx="1.5" stroke="#6366f1" strokeWidth="1.5" fill="none" />
+      {/* Cards inside columns */}
+      <rect x="3.25" y="5" width="2.5" height="2" rx="0.5" fill="#6366f1" opacity="0.6" />
+      <rect x="3.25" y="9" width="2.5" height="2" rx="0.5" fill="#6366f1" opacity="0.6" />
+      <rect x="3.25" y="13" width="2.5" height="2" rx="0.5" fill="#6366f1" opacity="0.6" />
+      <rect x="10.75" y="5" width="2.5" height="2" rx="0.5" fill="#6366f1" opacity="0.6" />
+      <rect x="10.75" y="9" width="2.5" height="2" rx="0.5" fill="#6366f1" opacity="0.6" />
+      <rect x="18.25" y="5" width="2.5" height="2" rx="0.5" fill="#6366f1" opacity="0.6" />
+    </svg>
   );
 }
