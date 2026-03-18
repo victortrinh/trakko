@@ -19,6 +19,18 @@ const config: ForgeConfig = {
     name: 'Trakko',
     executableName: 'Trakko',
     icon: './assets/icon',
+    ...(process.env.APPLE_IDENTITY
+      ? {
+          osxSign: {
+            identity: process.env.APPLE_IDENTITY,
+          },
+          osxNotarize: {
+            appleId: process.env.APPLE_ID!,
+            appleIdPassword: process.env.APPLE_PASSWORD!,
+            teamId: process.env.APPLE_TEAM_ID!,
+          },
+        }
+      : {}),
   },
   rebuildConfig: {
     onlyModules: ['better-sqlite3', 'node-pty'],
@@ -27,6 +39,12 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({
       name: 'Trakko',
+      ...(process.env.WINDOWS_CERTIFICATE
+        ? {
+            certificateFile: './certificate.pfx',
+            certificatePassword: process.env.WINDOWS_CERTIFICATE_PASSWORD,
+          }
+        : {}),
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
