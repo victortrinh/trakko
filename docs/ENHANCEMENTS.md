@@ -6,7 +6,7 @@
 - [x] **Claude Code sessions instead of API key** — spawn a Claude Code CLI session from within Trakko instead of requiring a separate API key. Opens a terminal-like panel with a live Claude Code session scoped to the task/project context. *(completed — replaced API key approach with node-pty + xterm.js)*
 
 ## UI / UX
-- [ ] **Richer inline task creation** — move the create form to the top of the Todo column (under the title) and expand it beyond title-only to include description, priority, labels, and due date at creation time
+- [x] **Richer inline task creation** — move the create form to the top of the Todo column (under the title) and expand it beyond title-only to include description, priority, labels, and due date at creation time *(completed — inline form with description, priority, labels)*
 - [ ] Light mode toggle
 - [x] Markdown support in task descriptions *(completed — react-markdown + remark-gfm with Write/Preview toggle)*
 - [x] Task labels / tags / priority levels *(completed — priority picker, user-created labels with colors)*

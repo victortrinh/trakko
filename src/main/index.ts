@@ -4,6 +4,7 @@ import { runMigrations } from './database/migrations';
 import { registerAllHandlers } from './ipc';
 import { getDb } from './database/connection';
 import { closeDb } from './database/connection';
+import { startNotificationService, stopNotificationService } from './services/notification.service';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -89,6 +90,7 @@ app.on('ready', () => {
   runMigrations();
   registerAllHandlers();
   createWindow();
+  startNotificationService();
 });
 
 app.on('window-all-closed', () => {
@@ -104,5 +106,6 @@ app.on('activate', () => {
 });
 
 app.on('before-quit', () => {
+  stopNotificationService();
   closeDb();
 });

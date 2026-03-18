@@ -3,8 +3,7 @@ import * as claudeCode from '../ai/claude-code.service';
 import type { AiSessionInput } from '../../shared/types';
 
 export function registerAiHandlers(): void {
-  ipcMain.handle('ai:start-session', (event, input: AiSessionInput) => {
-    const sessionId = crypto.randomUUID();
+  ipcMain.handle('ai:start-session', (event, sessionId: string, input: AiSessionInput) => {
     const sender = event.sender;
 
     const cwd = input.gitRepoPath || undefined;
@@ -26,7 +25,6 @@ export function registerAiHandlers(): void {
       }
     );
 
-    return sessionId;
   });
 
   ipcMain.handle('ai:send-input', (_event, sessionId: string, input: string) => {

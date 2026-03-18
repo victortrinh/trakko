@@ -27,6 +27,7 @@ export interface Task {
   status: TaskStatus;
   sortOrder: number;
   priority: TaskPriority | null;
+  dueDate: string | null;
   archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -52,6 +53,7 @@ export interface CreateTaskInput {
   description?: string;
   status?: TaskStatus;
   priority?: TaskPriority | null;
+  dueDate?: string | null;
 }
 
 export interface UpdateTaskInput {
@@ -61,6 +63,7 @@ export interface UpdateTaskInput {
   status?: TaskStatus;
   sortOrder?: number;
   priority?: TaskPriority | null;
+  dueDate?: string | null;
 }
 
 export interface ReorderTaskInput {
@@ -127,7 +130,7 @@ export interface ElectronAPI {
     isValidRepo: (repoPath: string) => Promise<boolean>;
   };
   ai: {
-    startSession: (input: AiSessionInput) => Promise<string>;
+    startSession: (sessionId: string, input: AiSessionInput) => Promise<void>;
     sendInput: (sessionId: string, input: string) => Promise<void>;
     resize: (sessionId: string, cols: number, rows: number) => Promise<void>;
     killSession: (sessionId: string) => Promise<void>;

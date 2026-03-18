@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import { useTaskStore } from '../../stores/taskStore';
 import { useLabelStore } from '../../stores/labelStore';
+import { CalendarPicker } from '../shared/CalendarPicker';
+import { formatDueDate, getDueDateStatus, getDueDateColor } from '../../utils/dateUtils';
 import type { TaskPriority, Label } from '../../../shared/types';
 
 const PRIORITY_OPTIONS: { value: TaskPriority | null; label: string; color: string }[] = [
@@ -19,12 +21,16 @@ export function InlineTaskCreate() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority | null>(null);
+  const [dueDate, setDueDate] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [selectedLabelIds, setSelectedLabelIds] = useState<Set<string>>(new Set());
   const [showNewLabel, setShowNewLabel] = useState(false);
   const [newLabelName, setNewLabelName] = useState('');
   const [newLabelColor, setNewLabelColor] = useState(LABEL_COLORS[0]);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dueDateTriggerRef = useRef<HTMLButtonElement>(null);
   const activeProjectId = useProjectStore((s) => s.activeProjectId);
   const createTask = useTaskStore((s) => s.createTask);
 
@@ -42,10 +48,23 @@ export function InlineTaskCreate() {
     }
   }, [isCreating]);
 
+  useEffect(() => {
+    if (!isCreating) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        handleCancel();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isCreating]);
+
   const resetForm = () => {
     setTitle('');
     setDescription('');
     setPriority(null);
+    setDueDate(null);
+    setShowCalendar(false);
     setSelectedLabelIds(new Set());
     setShowNewLabel(false);
     setNewLabelName('');
@@ -59,6 +78,7 @@ export function InlineTaskCreate() {
       title: title.trim(),
       description: description.trim() || undefined,
       priority,
+      dueDate,
     });
     for (const labelId of selectedLabelIds) {
       await addLabelToTask(task.id, labelId);
@@ -119,7 +139,7 @@ export function InlineTaskCreate() {
   }
 
   return (
-    <div className="mt-2 bg-surface-1 border border-border rounded-lg p-3 flex flex-col gap-2.5">
+    <div ref={containerRef} className="mt-2 bg-surface-1 border border-border rounded-lg p-3 flex flex-col gap-2.5">
       {/* Title */}
       <input
         ref={inputRef}
@@ -165,6 +185,45 @@ export function InlineTaskCreate() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Due Date */}
+      <div>
+        <label className="block text-xs text-text-secondary mb-1">Due Date</label>
+        <div className="flex items-center gap-1.5">
+          <button
+            ref={dueDateTriggerRef}
+            onClick={() => setShowCalendar(!showCalendar)}
+            className={`px-2 py-1 text-xs rounded-lg transition-colors flex items-center gap-1 ${
+              dueDate
+                ? `bg-surface-2 ${getDueDateColor(getDueDateStatus(dueDate))}`
+                : 'bg-surface-2 text-text-secondary hover:text-text-primary hover:bg-surface-3'
+            }`}
+          >
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
+              <path d="M2 6.5h12" stroke="currentColor" strokeWidth="1.3" />
+              <path d="M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+            </svg>
+            {dueDate ? formatDueDate(dueDate) : 'Set date'}
+          </button>
+          {dueDate && (
+            <button
+              onClick={() => setDueDate(null)}
+              className="text-text-tertiary hover:text-text-primary text-xs transition-colors"
+            >
+              x
+            </button>
+          )}
+        </div>
+        {showCalendar && (
+          <CalendarPicker
+            value={dueDate}
+            onChange={(d) => setDueDate(d)}
+            onClose={() => setShowCalendar(false)}
+            triggerRef={dueDateTriggerRef}
+          />
+        )}
       </div>
 
       {/* Labels */}

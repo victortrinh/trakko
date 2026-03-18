@@ -1,6 +1,6 @@
 import { getDb } from './connection';
 
-const CURRENT_VERSION = 3;
+const CURRENT_VERSION = 4;
 
 const migrations: Record<number, string> = {
   1: `
@@ -56,6 +56,17 @@ const migrations: Record<number, string> = {
       PRIMARY KEY (task_id, label_id),
       FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
       FOREIGN KEY (label_id) REFERENCES labels(id) ON DELETE CASCADE
+    );
+  `,
+  4: `
+    ALTER TABLE tasks ADD COLUMN due_date TEXT DEFAULT NULL;
+
+    CREATE TABLE notification_log (
+      task_id TEXT NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('due_today','overdue')),
+      notified_date TEXT NOT NULL,
+      PRIMARY KEY (task_id, type, notified_date),
+      FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
     );
   `,
 };

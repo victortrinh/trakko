@@ -18,14 +18,15 @@ export function AiPanel({ task, onClose }: AiPanelProps) {
   const [sessionAlive, setSessionAlive] = useState(false);
   const [userPrompt, setUserPrompt] = useState('');
   const [started, setStarted] = useState(false);
+  const pendingPromptRef = useRef<string | undefined>(undefined);
 
   const projects = useProjectStore((s) => s.projects);
   const project = projects.find((p) => p.id === task.projectId);
 
-  const startSession = async (prompt?: string) => {
-    setStarted(true);
+  // Initialize terminal and start PTY session after the terminal div is mounted
+  useEffect(() => {
+    if (!started || !termRef.current) return;
 
-    // Initialize terminal
     const terminal = new Terminal({
       theme: {
         background: '#0a0a0f',
@@ -44,20 +45,24 @@ export function AiPanel({ task, onClose }: AiPanelProps) {
     terminalRef.current = terminal;
     fitAddonRef.current = fitAddon;
 
-    if (termRef.current) {
-      terminal.open(termRef.current);
-      fitAddon.fit();
-    }
+    terminal.open(termRef.current);
+    fitAddon.fit();
+
+    // Generate sessionId client-side BEFORE the IPC call so the onOutput
+    // listener can match events from the very first byte of PTY output.
+    const sessionId = crypto.randomUUID();
+    sessionIdRef.current = sessionId;
+    setSessionAlive(true);
 
     // Subscribe to events
     const unsubOutput = window.electronAPI.ai.onOutput((sid, data) => {
-      if (sid === sessionIdRef.current) {
+      if (sid === sessionId) {
         terminal.write(data);
       }
     });
 
     const unsubExit = window.electronAPI.ai.onExit((sid) => {
-      if (sid === sessionIdRef.current) {
+      if (sid === sessionId) {
         terminal.write('\r\n\x1b[90m[Session ended]\x1b[0m\r\n');
         setSessionAlive(false);
       }
@@ -65,47 +70,33 @@ export function AiPanel({ task, onClose }: AiPanelProps) {
 
     // Forward terminal input to PTY
     terminal.onData((data) => {
-      if (sessionIdRef.current) {
-        window.electronAPI.ai.sendInput(sessionIdRef.current, data);
-      }
+      window.electronAPI.ai.sendInput(sessionId, data);
     });
 
-    // Start the session
-    const sessionId = await window.electronAPI.ai.startSession({
+    // Start the PTY session
+    window.electronAPI.ai.startSession(sessionId, {
       taskTitle: task.title,
       taskDescription: task.description,
       projectName: project?.name || '',
       gitRepoPath: project?.gitRepoPath || undefined,
-      initialPrompt: prompt || undefined,
+      initialPrompt: pendingPromptRef.current,
     });
 
-    sessionIdRef.current = sessionId;
-    setSessionAlive(true);
-
     // Handle resize
-    const handleResize = () => {
-      if (fitAddonRef.current && terminalRef.current) {
-        fitAddonRef.current.fit();
-        const { cols, rows } = terminalRef.current;
-        if (sessionIdRef.current) {
-          window.electronAPI.ai.resize(sessionIdRef.current, cols, rows);
-        }
-      }
-    };
+    const resizeObserver = new ResizeObserver(() => {
+      fitAddon.fit();
+      const { cols, rows } = terminal;
+      window.electronAPI.ai.resize(sessionId, cols, rows);
+    });
+    resizeObserver.observe(termRef.current);
 
-    const resizeObserver = new ResizeObserver(handleResize);
-    if (termRef.current) {
-      resizeObserver.observe(termRef.current);
-    }
-
-    // Cleanup
     return () => {
       resizeObserver.disconnect();
       unsubOutput();
       unsubExit();
       terminal.dispose();
     };
-  };
+  }, [started]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -113,7 +104,6 @@ export function AiPanel({ task, onClose }: AiPanelProps) {
       if (sessionIdRef.current) {
         window.electronAPI.ai.killSession(sessionIdRef.current);
       }
-      terminalRef.current?.dispose();
     };
   }, []);
 
@@ -132,7 +122,8 @@ export function AiPanel({ task, onClose }: AiPanelProps) {
   };
 
   const handleStart = () => {
-    startSession(userPrompt.trim() || undefined);
+    pendingPromptRef.current = userPrompt.trim() || undefined;
+    setStarted(true);
   };
 
   return (

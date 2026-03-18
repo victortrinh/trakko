@@ -28,7 +28,7 @@ const api: ElectronAPI = {
     isValidRepo: (repoPath) => ipcRenderer.invoke('git:is-valid-repo', repoPath),
   },
   ai: {
-    startSession: (input) => ipcRenderer.invoke('ai:start-session', input),
+    startSession: (sessionId, input) => ipcRenderer.invoke('ai:start-session', sessionId, input),
     sendInput: (sessionId, input) => ipcRenderer.invoke('ai:send-input', sessionId, input),
     resize: (sessionId, cols, rows) => ipcRenderer.invoke('ai:resize', sessionId, cols, rows),
     killSession: (sessionId) => ipcRenderer.invoke('ai:kill-session', sessionId),
