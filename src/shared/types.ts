@@ -119,6 +119,9 @@ export interface ElectronAPI {
     onDone: (callback: (jobId: string) => void) => () => void;
     onError: (callback: (jobId: string, error: string) => void) => () => void;
   };
+  dialog: {
+    selectFolder: () => Promise<string | null>;
+  };
   appState: {
     get: (key: string) => Promise<string | null>;
     set: (key: string, value: string) => Promise<void>;

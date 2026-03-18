@@ -78,13 +78,25 @@ export function ProjectForm({ project, onClose }: ProjectFormProps) {
 
           <div>
             <label className="block text-xs text-text-secondary mb-1.5">Git Repository Path</label>
-            <input
-              type="text"
-              value={gitRepoPath}
-              onChange={(e) => setGitRepoPath(e.target.value)}
-              placeholder="/path/to/repo (optional)"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={gitRepoPath}
+                onChange={(e) => setGitRepoPath(e.target.value)}
+                placeholder="/path/to/repo (optional)"
+                className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent"
+              />
+              <button
+                type="button"
+                onClick={async () => {
+                  const path = await window.electronAPI.dialog.selectFolder();
+                  if (path) setGitRepoPath(path);
+                }}
+                className="px-3 py-2 text-sm text-text-secondary bg-surface-2 border border-border rounded-lg hover:bg-surface-3 hover:text-text-primary transition-colors shrink-0"
+              >
+                Browse
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 mt-2">

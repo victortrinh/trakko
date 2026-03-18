@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, dialog } from 'electron';
 import { getDb } from '../database/connection';
 import { registerProjectHandlers } from './projects.ipc';
 import { registerTaskHandlers } from './tasks.ipc';
@@ -21,11 +21,22 @@ function registerAppStateHandlers(): void {
   });
 }
 
+function registerDialogHandlers(): void {
+  ipcMain.handle('dialog:select-folder', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Select Git Repository',
+    });
+    return result.canceled ? null : result.filePaths[0] ?? null;
+  });
+}
+
 export function registerAllHandlers(): void {
   registerProjectHandlers();
   registerTaskHandlers();
   registerSearchHandlers();
   registerGitHandlers();
   registerAiHandlers();
+  registerDialogHandlers();
   registerAppStateHandlers();
 }

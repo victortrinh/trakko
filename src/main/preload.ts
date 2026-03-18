@@ -45,6 +45,9 @@ const api: ElectronAPI = {
       return () => { ipcRenderer.removeListener('ai:error', handler); };
     },
   },
+  dialog: {
+    selectFolder: () => ipcRenderer.invoke('dialog:select-folder'),
+  },
   appState: {
     get: (key) => ipcRenderer.invoke('app-state:get', key),
     set: (key, value) => ipcRenderer.invoke('app-state:set', key, value),
