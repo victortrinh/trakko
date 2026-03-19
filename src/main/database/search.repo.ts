@@ -24,6 +24,7 @@ export function searchTasks(query: string): TaskSearchResult[] {
     sortOrder: row.sort_order as number,
     priority: (row.priority as TaskSearchResult['priority']) || null,
     dueDate: (row.due_date as string) || null,
+    taskNumber: (row.task_number as number) || null,
     archivedAt: (row.archived_at as string) || null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,

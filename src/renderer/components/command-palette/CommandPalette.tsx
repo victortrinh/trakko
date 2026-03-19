@@ -114,10 +114,17 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
     inputRef.current?.focus();
   }, []);
 
-  const STATUS_ICONS: Record<string, string> = {
-    todo: '○',
-    in_progress: '◐',
-    done: '●',
+  const StatusIcon = ({ status }: { status: string }) => {
+    switch (status) {
+      case 'todo':
+        return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="#666666" strokeWidth="1.3"/></svg>;
+      case 'in_progress':
+        return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="#3b82f6" strokeWidth="1.3"/><path d="M8 4v4l2.5 1.5" stroke="#3b82f6" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+      case 'done':
+        return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="#22c55e" strokeWidth="1.3"/><path d="M5.5 8l1.75 1.75L10.5 6.5" stroke="#22c55e" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+      default:
+        return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="#666666" strokeWidth="1.3"/></svg>;
+    }
   };
 
   return (
@@ -164,7 +171,7 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
               )}
               {item.type === 'task' && (
                 <>
-                  <span className="text-xs w-5 text-center">{STATUS_ICONS[item.task.status] || '○'}</span>
+                  <span className="flex w-5 justify-center"><StatusIcon status={item.task.status} /></span>
                   <span className="truncate">{item.task.title}</span>
                   <span className="ml-auto text-xs text-text-tertiary truncate max-w-[120px]">
                     {item.task.projectName}

@@ -1,8 +1,9 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { DragDropProvider } from '@dnd-kit/react';
 import { move } from '@dnd-kit/helpers';
 import { useTaskStore } from '../../stores/taskStore';
 import { KanbanColumn } from './KanbanColumn';
+import { TaskCreateModal } from '../tasks/TaskCreateModal';
 import type { Task, TaskStatus } from '../../../shared/types';
 
 const COLUMNS: { status: TaskStatus; label: string }[] = [
@@ -16,6 +17,9 @@ export function KanbanBoard() {
   const setTasks = useTaskStore((s) => s.setTasks);
   const moveTask = useTaskStore((s) => s.moveTask);
   const snapshotRef = useRef<Task[]>([]);
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createDefaultStatus, setCreateDefaultStatus] = useState<TaskStatus>('todo');
 
   // Group tasks by status into the shape @dnd-kit/helpers expects
   const getColumns = useCallback(() => {
@@ -38,7 +42,6 @@ export function KanbanBoard() {
 
   const handleDragOver = (event: Parameters<NonNullable<React.ComponentProps<typeof DragDropProvider>['onDragOver']>>[0]) => {
     const result = move(columns, event);
-    // Flatten back to a tasks array with updated statuses
     const updated: Task[] = [];
     for (const [status, columnTasks] of Object.entries(result)) {
       for (let i = 0; i < (columnTasks as Task[]).length; i++) {
@@ -58,7 +61,6 @@ export function KanbanBoard() {
       return;
     }
 
-    // Find what changed and persist
     const snapshot = snapshotRef.current;
     for (const task of tasks) {
       const original = snapshot.find((t) => t.id === task.id);
@@ -74,16 +76,27 @@ export function KanbanBoard() {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex flex-1 gap-4 p-6 overflow-x-auto">
+      <div className="flex flex-1 gap-6 p-6 overflow-x-auto">
         {COLUMNS.map(({ status, label }) => (
           <KanbanColumn
             key={status}
             status={status}
             label={label}
             tasks={columns[status] || []}
+            onCreateTask={(defaultStatus) => {
+              setCreateDefaultStatus(defaultStatus);
+              setShowCreateModal(true);
+            }}
           />
         ))}
       </div>
+
+      {showCreateModal && (
+        <TaskCreateModal
+          defaultStatus={createDefaultStatus}
+          onClose={() => setShowCreateModal(false)}
+        />
+      )}
     </DragDropProvider>
   );
 }

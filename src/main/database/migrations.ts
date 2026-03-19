@@ -1,6 +1,6 @@
 import { getDb } from './connection';
 
-const CURRENT_VERSION = 4;
+const CURRENT_VERSION = 5;
 
 const migrations: Record<number, string> = {
   1: `
@@ -45,7 +45,7 @@ const migrations: Record<number, string> = {
       id TEXT PRIMARY KEY,
       project_id TEXT,
       name TEXT NOT NULL,
-      color TEXT NOT NULL DEFAULT '#6366f1',
+      color TEXT NOT NULL DEFAULT '#3b82f6',
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
     );
@@ -68,6 +68,43 @@ const migrations: Record<number, string> = {
       PRIMARY KEY (task_id, type, notified_date),
       FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
     );
+  `,
+  5: `
+    -- Fix tasks CHECK constraint to include in_review
+    CREATE TABLE tasks_new (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'todo' CHECK(status IN ('todo','in_progress','in_review','done')),
+      sort_order REAL NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      archived_at TEXT DEFAULT NULL,
+      priority TEXT DEFAULT NULL CHECK(priority IN ('low','medium','high','urgent')),
+      due_date TEXT DEFAULT NULL,
+      task_number INTEGER DEFAULT NULL,
+      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    );
+    INSERT INTO tasks_new (id, project_id, title, description, status, sort_order,
+      created_at, updated_at, archived_at, priority, due_date)
+      SELECT id, project_id, title, description, status, sort_order,
+      created_at, updated_at, archived_at, priority, due_date FROM tasks;
+    DROP TABLE tasks;
+    ALTER TABLE tasks_new RENAME TO tasks;
+    CREATE INDEX idx_tasks_project_status ON tasks(project_id, status);
+    CREATE INDEX idx_tasks_archived ON tasks(project_id, archived_at);
+
+    -- Backfill task numbers per project
+    UPDATE tasks SET task_number = (
+      SELECT COUNT(*) FROM tasks t2
+      WHERE t2.project_id = tasks.project_id
+        AND (t2.created_at < tasks.created_at OR (t2.created_at = tasks.created_at AND t2.id <= tasks.id))
+    );
+
+    -- Project color & icon
+    ALTER TABLE projects ADD COLUMN color TEXT DEFAULT '#3b82f6';
+    ALTER TABLE projects ADD COLUMN icon TEXT DEFAULT NULL;
   `,
 };
 

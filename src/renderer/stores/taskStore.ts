@@ -31,7 +31,6 @@ export const useTaskStore = create<TaskState>()((set, get) => ({
   fetchTasks: async (projectId) => {
     set({ loading: true });
     const tasks = await window.electronAPI.tasks.listByProject(projectId);
-    // Batch-fetch labels for all tasks
     if (tasks.length > 0) {
       const taskIds = tasks.map((t) => t.id);
       const labelsMap = await window.electronAPI.labels.getForTasks(taskIds);
@@ -51,7 +50,6 @@ export const useTaskStore = create<TaskState>()((set, get) => ({
 
   updateTask: async (input) => {
     const task = await window.electronAPI.tasks.update(input);
-    // Preserve labels from existing task
     const existing = get().tasks.find((t) => t.id === task.id);
     task.labels = existing?.labels || [];
     set((state) => ({
@@ -66,7 +64,6 @@ export const useTaskStore = create<TaskState>()((set, get) => ({
   },
 
   moveTask: async (id, newStatus, newSortOrder) => {
-    // Optimistic update
     set((state) => ({
       tasks: state.tasks.map((t) =>
         t.id === id ? { ...t, status: newStatus, sortOrder: newSortOrder } : t
@@ -75,7 +72,6 @@ export const useTaskStore = create<TaskState>()((set, get) => ({
     try {
       await window.electronAPI.tasks.reorder({ id, status: newStatus, sortOrder: newSortOrder });
     } catch (err) {
-      // Revert on failure — re-fetch from DB
       const task = get().tasks.find((t) => t.id === id);
       if (task) {
         const tasks = await window.electronAPI.tasks.listByProject(task.projectId);

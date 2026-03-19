@@ -32,7 +32,7 @@ export function AiPanel({ task, onClose }: AiPanelProps) {
         background: '#0a0a0f',
         foreground: '#e4e4ef',
         cursor: '#e4e4ef',
-        selectionBackground: '#6366f166',
+        selectionBackground: '#3b82f666',
       },
       fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
       fontSize: 13,
