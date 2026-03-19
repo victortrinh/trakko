@@ -7,6 +7,10 @@ export function registerTaskHandlers(): void {
     return tasksRepo.listTasksByProject(projectId);
   });
 
+  ipcMain.handle('tasks:list-all', () => {
+    return tasksRepo.listAllTasks();
+  });
+
   ipcMain.handle('tasks:create', (_event, input: CreateTaskInput) => {
     return tasksRepo.createTask(input);
   });

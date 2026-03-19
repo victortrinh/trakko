@@ -6,6 +6,8 @@ export interface Project {
   name: string;
   description: string;
   gitRepoPath: string | null;
+  color: string;
+  icon: string | null;
   createdAt: string;
   updatedAt: string;
   sortOrder: number;
@@ -28,6 +30,7 @@ export interface Task {
   sortOrder: number;
   priority: TaskPriority | null;
   dueDate: string | null;
+  taskNumber: number | null;
   archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -38,6 +41,8 @@ export interface CreateProjectInput {
   name: string;
   description?: string;
   gitRepoPath?: string | null;
+  color?: string;
+  icon?: string | null;
 }
 
 export interface UpdateProjectInput {
@@ -45,6 +50,8 @@ export interface UpdateProjectInput {
   name?: string;
   description?: string;
   gitRepoPath?: string | null;
+  color?: string;
+  icon?: string | null;
 }
 
 export interface CreateTaskInput {
@@ -112,6 +119,7 @@ export interface ElectronAPI {
   };
   tasks: {
     listByProject: (projectId: string) => Promise<Task[]>;
+    listAll: () => Promise<Task[]>;
     create: (input: CreateTaskInput) => Promise<Task>;
     update: (input: UpdateTaskInput) => Promise<Task>;
     delete: (id: string) => Promise<void>;

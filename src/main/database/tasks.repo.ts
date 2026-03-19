@@ -16,6 +16,7 @@ function rowToTask(row: Record<string, unknown>): Task {
     sortOrder: row.sort_order as number,
     priority: (row.priority as Task['priority']) || null,
     dueDate: (row.due_date as string) || null,
+    taskNumber: (row.task_number as number) || null,
     archivedAt: (row.archived_at as string) || null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
@@ -47,10 +48,14 @@ export function createTask(input: CreateTaskInput): Task {
     )
     .get(input.projectId, status) as { next: number };
 
+  const maxTaskNum = db
+    .prepare('SELECT COALESCE(MAX(task_number), 0) + 1 AS next FROM tasks WHERE project_id = ?')
+    .get(input.projectId) as { next: number };
+
   db.prepare(
-    `INSERT INTO tasks (id, project_id, title, description, status, sort_order, priority, due_date)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(id, input.projectId, input.title, input.description || '', status, maxOrder.next, input.priority || null, input.dueDate || null);
+    `INSERT INTO tasks (id, project_id, title, description, status, sort_order, priority, due_date, task_number)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(id, input.projectId, input.title, input.description || '', status, maxOrder.next, input.priority || null, input.dueDate || null, maxTaskNum.next);
 
   return getTask(id)!;
 }
@@ -127,6 +132,14 @@ export function bulkArchiveDone(projectId: string): void {
     `UPDATE tasks SET archived_at = datetime('now'), updated_at = datetime('now')
      WHERE project_id = ? AND status = 'done' AND archived_at IS NULL`
   ).run(projectId);
+}
+
+export function listAllTasks(): Task[] {
+  const db = getDb();
+  const rows = db
+    .prepare('SELECT * FROM tasks WHERE archived_at IS NULL ORDER BY due_date ASC NULLS LAST, created_at DESC')
+    .all();
+  return rows.map((row) => rowToTask(row as Record<string, unknown>));
 }
 
 export function getTasksDueSoon(): Task[] {

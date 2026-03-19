@@ -10,6 +10,7 @@ const api: ElectronAPI = {
   },
   tasks: {
     listByProject: (projectId) => ipcRenderer.invoke('tasks:list-by-project', projectId),
+    listAll: () => ipcRenderer.invoke('tasks:list-all'),
     create: (input) => ipcRenderer.invoke('tasks:create', input),
     update: (input) => ipcRenderer.invoke('tasks:update', input),
     delete: (id) => ipcRenderer.invoke('tasks:delete', id),
