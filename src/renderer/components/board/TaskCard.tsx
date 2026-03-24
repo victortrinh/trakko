@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useSortable } from '@dnd-kit/react/sortable';
 import type { Task, TaskStatus, TaskPriority } from '../../../shared/types';
 import { TaskDetail } from '../tasks/TaskDetail';
@@ -37,6 +38,8 @@ export function TaskCard({ task, index, column }: TaskCardProps) {
   const [showDetail, setShowDetail] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
   const archiveTask = useTaskStore((s) => s.archiveTask);
   const deleteTask = useTaskStore((s) => s.deleteTask);
   const { ref, isDragSource } = useSortable({
@@ -54,7 +57,10 @@ export function TaskCard({ task, index, column }: TaskCardProps) {
   useEffect(() => {
     if (!showMenu) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      if (
+        menuRef.current && !menuRef.current.contains(e.target as Node) &&
+        menuButtonRef.current && !menuButtonRef.current.contains(e.target as Node)
+      ) {
         setShowMenu(false);
       }
     };
@@ -84,32 +90,21 @@ export function TaskCard({ task, index, column }: TaskCardProps) {
           ${isDragSource ? 'opacity-50 shadow-lg scale-[1.02]' : ''}`}
       >
         {/* Three-dot menu button */}
-        <div className="absolute top-4 right-4" ref={menuRef}>
+        <div className="absolute top-4 right-4">
           <button
+            ref={menuButtonRef}
             onClick={(e) => {
               e.stopPropagation();
+              if (!showMenu && menuButtonRef.current) {
+                const rect = menuButtonRef.current.getBoundingClientRect();
+                setMenuPos({ top: rect.bottom + 4, left: rect.right - 144 });
+              }
               setShowMenu(!showMenu);
             }}
             className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded text-text-tertiary hover:text-text-primary hover:bg-surface-3 transition-all text-sm"
           >
             &#x22EF;
           </button>
-          {showMenu && (
-            <div className="absolute right-0 top-7 z-50 w-36 bg-surface-2 border border-border rounded-lg shadow-xl py-1">
-              <button
-                onClick={handleArchive}
-                className="w-full text-left px-3 py-1.5 text-xs text-text-secondary hover:text-text-primary hover:bg-surface-3 transition-colors"
-              >
-                Archive
-              </button>
-              <button
-                onClick={handleDelete}
-                className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-surface-3 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Top row: priority label + due date */}
@@ -161,6 +156,29 @@ export function TaskCard({ task, index, column }: TaskCardProps) {
           </div>
         )}
       </div>
+
+      {showMenu && menuPos && createPortal(
+        <div
+          ref={menuRef}
+          className="fixed z-[9999] w-36 bg-surface-2 border border-border rounded-lg shadow-xl py-1"
+          style={{ top: menuPos.top, left: menuPos.left }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={handleArchive}
+            className="w-full text-left px-3 py-1.5 text-xs text-text-secondary hover:text-text-primary hover:bg-surface-3 transition-colors"
+          >
+            Archive
+          </button>
+          <button
+            onClick={handleDelete}
+            className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-surface-3 transition-colors"
+          >
+            Delete
+          </button>
+        </div>,
+        document.body
+      )}
 
       {showDetail && (
         <TaskDetail task={task} onClose={() => setShowDetail(false)} />

@@ -1,7 +1,7 @@
 {
   "name": "trakko",
   "productName": "Trakko",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A cross-platform personal project board with Kanban task management",
   "main": ".webpack/main",
   "private": true,
